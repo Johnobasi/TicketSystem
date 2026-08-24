@@ -1,0 +1,34 @@
+using Application.Common;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Infrastructure;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException(
+                "Connection string 'DefaultConnection' was not found.");
+
+        services.AddDbContext<AppDbContext>(options =>
+        {
+            options.UseSqlServer(
+                connectionString,
+                sql => sql.EnableRetryOnFailure(
+                    maxRetryCount: 3,
+                    maxRetryDelay: TimeSpan.FromSeconds(5),
+                    errorNumbersToAdd: null));
+        });
+
+        services.AddScoped<IApplicationDbContext>(
+           serviceProvider =>
+               serviceProvider.GetRequiredService<AppDbContext>());
+
+        return services;
+    }
+}
