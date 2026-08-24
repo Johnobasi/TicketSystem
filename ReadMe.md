@@ -170,8 +170,8 @@ docker compose up -d
 ### Run
 
 ```bash
-git clone <repository-url>
-cd <repository-directory>
+git clone https://github.com/Johnobasi/TicketSystem
+cd TicketSystem
 
 docker compose up -d
 
